@@ -52,7 +52,7 @@ jobs:
       - name: Build and push
         id: build-and-push
         env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}
+          IMAGE: actions-cache-test:latest
         run: |
           /usr/bin/docker buildx build --cache-from type=local,src=/tmp/.buildx-cache --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max --iidfile /tmp/docker-build-push/iidfile --tag user/app:latest --metadata-file /tmp/docker-build-push/metadata-file .
           rm -rf /tmp/.buildx-cache
