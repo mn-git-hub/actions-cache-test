@@ -30,22 +30,31 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: false
-          tags: user/app:latest
-          #cache-from: type=local,src=/tmp/.buildx-cache
-          #cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           #      -
-          #        # Temp fix
-          #        # https://github.com/docker/build-push-action/issues/252
-          #        # https://github.com/moby/buildkit/issues/1896
-          #        name: Move cache
-          #        run: |
-          #          rm -rf /tmp/.buildx-cache
-          #          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          #        name: Build and push
+          #        uses: docker/build-push-action@v2
+          #        with:
+          #          context: .
+          #          push: false
+          #          tags: user/app:latest
+          #          #cache-from: type=local,src=/tmp/.buildx-cache
+          #          #cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          #          cache-from: type=gha
+          #          cache-to: type=gha,mode=max
+          #          #      -
+          #          #        # Temp fix
+          #          #        # https://github.com/docker/build-push-action/issues/252
+          #          #        # https://github.com/moby/buildkit/issues/1896
+          #          #        name: Move cache
+          #          #        run: |
+          #          #          rm -rf /tmp/.buildx-cache
+          #          #          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      - name: Build and push
+        id: build-and-push
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}
+        run: |
+          /usr/bin/docker buildx build --cache-from type=local,src=/tmp/.buildx-cache --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max --iidfile /tmp/docker-build-push/iidfile --tag user/app:latest --metadata-file /tmp/docker-build-push/metadata-file .
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          echo "::set-output name=digest::$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.IMAGE }} | cut -d'@' -f2)"
