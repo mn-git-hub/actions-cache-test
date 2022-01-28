@@ -70,7 +70,7 @@ jobs:
         env:
           IMAGE: actions-cache-test:latest
         run: |
-          /usr/bin/docker buildx build --cache-from type=local,src=/tmp/.buildx-cache --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max --tag user/app:latest .
+          /usr/bin/docker buildx build --progress=plain --cache-from type=local,src=/tmp/.buildx-cache --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max --tag user/app:latest .
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
           echo "::set-output name=digest::$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.IMAGE }} | cut -d'@' -f2)"
