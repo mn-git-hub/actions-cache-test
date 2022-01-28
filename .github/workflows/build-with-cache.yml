@@ -17,7 +17,19 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       -
-        name: Cache Docker layers
+        name: Inspect builder
+        run: |
+          echo "Name:      ${{ steps.buildx.outputs.name }}"
+          echo "Endpoint:  ${{ steps.buildx.outputs.endpoint }}"
+          echo "Driver:    ${{ steps.buildx.outputs.status }}"
+          echo "Status:    ${{ steps.buildx.outputs.status }}"
+          echo "Flags:     ${{ steps.buildx.outputs.flags }}"
+          echo "Platforms: ${{ steps.buildx.outputs.platforms }}"
+      -
+        name: List the current builder instances
+        run: docker buildx ls
+      -
+        name: Restore local Docker layer cache
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
@@ -49,8 +61,8 @@ jobs:
           #          #        run: |
           #          #          rm -rf /tmp/.buildx-cache
           #          #          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      - name: Build and push
-        id: build-and-push
+      - name: Build Docker image
+        id: build
         env:
           IMAGE: actions-cache-test:latest
         run: |
